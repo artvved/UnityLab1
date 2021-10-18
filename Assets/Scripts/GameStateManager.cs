@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class GameStateManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public bool IsPlayerAlive { get; set; }
+
+    public static GameStateManager Instance;
+
+    private GameStateManager()
     {
-        
     }
 
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        
+        Instance = this;
+        IsPlayerAlive = true;
     }
+
+    
 }

@@ -26,6 +26,10 @@ public class EnemySpawner : MonoBehaviour
         
         while (true)
         {
+            if (!GameStateManager.Instance.IsPlayerAlive)
+            {
+                break;
+            }
             Vector3 pos = new Vector3(
                 Random.Range(((-1) * gamefieldSize.x), (gamefieldSize.x)),
                 Random.Range(((-1) * gamefieldSize.y), (gamefieldSize.y)),

@@ -34,21 +34,24 @@ public class PlayerMechanics : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (GameStateManager.Instance.IsPlayerAlive)
         {
-            RaycastHit2D hit = Physics2D.Raycast(mainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+            if (Input.GetMouseButtonDown(0))
+            {
+                RaycastHit2D hit = Physics2D.Raycast(mainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
-            if (hit.collider != null)
-            {
-                PlayerStats.PointsAmount += 5;
-                soundManager.Play();
-                Destroy(hit.collider.gameObject);
-            }
-            else
-            {
-                if (PlayerStats.PointsAmount != 0)
+                if (hit.collider != null)
                 {
-                    PlayerStats.PointsAmount -= 1;
+                    PlayerStats.PointsAmount += 5;
+                    soundManager.Play();
+                    Destroy(hit.collider.gameObject);
+                }
+                else
+                {
+                    if (PlayerStats.PointsAmount != 0)
+                    {
+                        PlayerStats.PointsAmount -= 1;
+                    }
                 }
             }
         }
