@@ -19,8 +19,9 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (size >= 3)
+        if (size >1)
         {
+            Destroy(gameObject);
             return;
         }
 
@@ -33,10 +34,6 @@ public class Enemy : MonoBehaviour
             lScale.y + scaleIncr,
             lScale.z);
 
-        if (size >= 1)
-        {
-            GetComponent<SpriteRenderer>().material.color = Color.red;
-            GameStateManager.Instance.IsPlayerAlive = false;
-        }
+        
     }
 }

@@ -44,7 +44,7 @@ public class PlayerMechanics : MonoBehaviour
                 {
                     PlayerStats.PointsAmount += 5;
                     soundManager.Play();
-                    Destroy(hit.collider.gameObject);
+                    //Destroy(hit.collider.gameObject);
                 }
                 else
                 {
