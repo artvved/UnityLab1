@@ -19,21 +19,24 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        
-            float sizeIncr = 1f / (secondsToGrow) * Time.deltaTime;
-            size += sizeIncr;
-            var lScale = transform.localScale;
+        if (size >= 3)
+        {
+            return;
+        }
 
-            float scaleIncr = (1f - startSize) / (secondsToGrow) * Time.deltaTime;
-            transform.localScale = new Vector3(lScale.x + scaleIncr,
-                lScale.y + scaleIncr,
-                lScale.z);
-            
-            if (size >= 1)
-            {
-                GetComponent<SpriteRenderer>().material.color=Color.red;
-                GameStateManager.Instance.IsPlayerAlive = false;
-            }
-        
+        float sizeIncr = 1f / (secondsToGrow) * Time.deltaTime;
+        size += sizeIncr;
+        var lScale = transform.localScale;
+
+        float scaleIncr = (1f - startSize) / (secondsToGrow) * Time.deltaTime;
+        transform.localScale = new Vector3(lScale.x + scaleIncr,
+            lScale.y + scaleIncr,
+            lScale.z);
+
+        if (size >= 1)
+        {
+            GetComponent<SpriteRenderer>().material.color = Color.red;
+            GameStateManager.Instance.IsPlayerAlive = false;
+        }
     }
 }
