@@ -7,20 +7,8 @@ using UnityEngine.UIElements;
 
 public class PlayerMechanics : MonoBehaviour
 {
+    private int timeGameSeconds=10;
     private PlayerStats playerStats;
-
-    private Camera mainCamera;
-
-    [SerializeField] private SoundManager soundManager;
-
-    public static PlayerMechanics Instance;
-
-    void Awake()
-    {
-        playerStats = new PlayerStats();
-        mainCamera = Camera.main;
-        Instance = this;
-    }
 
     public PlayerStats PlayerStats
     {
@@ -28,32 +16,92 @@ public class PlayerMechanics : MonoBehaviour
         set => playerStats = value;
     }
 
-    private PlayerMechanics()
+    private Camera mainCamera;
+
+    [SerializeField] private GameStateManager gameStateManager;
+    [SerializeField] private SoundManager soundManager;
+    [SerializeField] private InputManager inputManager;
+
+    [SerializeField] private EnemySpawner enemySpawner;
+    [SerializeField] private Timer timer;
+
+    [SerializeField] private GameScreen gameScreen;
+    [SerializeField] private StartScreen startScreen;
+
+
+    void Awake()
     {
+        playerStats = new PlayerStats();
+        mainCamera = Camera.main;
+        enemySpawner.PlayerStats = playerStats;
+
+        timer.TimerEvent += () => { gameScreen.SetTime(timer.CurrentSeconds); };
+
+        inputManager.ClickEvent += () =>
+        {
+            ClickLogic();
+            gameScreen.OnPointsChange();
+        };
+        gameScreen.PointsChangeEvent += () => { gameScreen.SetPoints(playerStats.PointsAmount); };
+        gameScreen.BackToMenuEvent += () =>
+        {
+            gameStateManager.IsPlayerAlive = false;
+            playerStats.PointsAmount = 0;
+            gameScreen.gameObject.SetActive(false);
+            startScreen.gameObject.SetActive(true);
+        };
+        
+
+        startScreen.StartCasualGameEvent += () =>
+        {
+            StartGame();
+            gameScreen.ShowTime(false);
+        };
+        startScreen.StartLimitedTimeGameEvent += () =>
+        {
+            StartGame();
+            gameScreen.ShowTime(true);
+            timer.Seconds = timeGameSeconds;
+            timer.StartTimer();
+        };
+        startScreen.QuitGameEvent += () =>
+        {
+            Application.Quit();
+        };
     }
 
-    void Update()
-    {
-        if (GameStateManager.Instance.IsPlayerAlive)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                RaycastHit2D hit = Physics2D.Raycast(mainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+    
 
-                if (hit.collider != null)
+    private void StartGame()
+    {
+        gameStateManager.IsPlayerAlive = true;
+        gameScreen.gameObject.SetActive(true);
+        startScreen.gameObject.SetActive(false);
+        enemySpawner.StartSpawn();
+    }
+
+    private void ClickLogic()
+    {
+        if (gameStateManager.IsPlayerAlive)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(mainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+            if (hit.collider != null)
+            {
+                PlayerStats.PointsAmount += 5;
+                soundManager.Play();
+                Destroy(hit.collider.gameObject);
+            }
+            else
+            {
+                if (PlayerStats.PointsAmount != 0)
                 {
-                    PlayerStats.PointsAmount += 5;
-                    soundManager.Play();
-                    //Destroy(hit.collider.gameObject);
-                }
-                else
-                {
-                    if (PlayerStats.PointsAmount != 0)
-                    {
-                        PlayerStats.PointsAmount -= 1;
-                    }
+                    PlayerStats.PointsAmount -= 1;
                 }
             }
         }
     }
+
+
+   
 }

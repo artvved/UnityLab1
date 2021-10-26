@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,18 +11,34 @@ public class Enemy : MonoBehaviour
 
     private float secondsToGrow;
 
+    public float SecondsToGrow
+    {
+        get => secondsToGrow;
+        set => secondsToGrow = value;
+    }
+
+    public event Action GameEndEvent;
+    public event Action OversizeEvent;
+    public void OnGameEnd()
+    {
+        GameEndEvent?.Invoke();
+    }
+    public void OnOversize()
+    {
+        OversizeEvent?.Invoke();
+    }
+
     void Start()
     {
-        secondsToGrow = DifficultyManager.Instance.GrowthDifficultyCurve.Evaluate(
-            PlayerMechanics.Instance.PlayerStats.PointsAmount);
         startSize = transform.localScale.x;
     }
 
     void FixedUpdate()
     {
+        OnGameEnd();
         if (size >1)
         {
-            Destroy(gameObject);
+            OnOversize();
             return;
         }
 

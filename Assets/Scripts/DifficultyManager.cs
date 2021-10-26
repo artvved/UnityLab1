@@ -4,12 +4,6 @@ using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
 {
-
-    private DifficultyManager()
-    {
-    }
-
-    public static DifficultyManager Instance;
     [SerializeField]private AnimationCurve spawnDifficultyCurve;
     [SerializeField]private AnimationCurve growthDifficultyCurve;
 
@@ -24,15 +18,6 @@ public class DifficultyManager : MonoBehaviour
         get => growthDifficultyCurve;
         set => growthDifficultyCurve = value;
     }
+    
 
-    void Awake()
-    {
-        Instance = this;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
