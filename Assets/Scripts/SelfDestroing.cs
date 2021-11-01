@@ -1,18 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SelfDestroing : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+   private float secondsTolive = 2f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   private void Start()
+   {
+      StartCoroutine(SelfDestruction());
+   }
+
+   private IEnumerator SelfDestruction()
+   {
+      yield return new WaitForSeconds(secondsTolive);
+      Destroy(gameObject);
+   }
 }

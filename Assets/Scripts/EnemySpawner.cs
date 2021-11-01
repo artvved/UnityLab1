@@ -5,9 +5,12 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private Enemy enemyPrefab;
-    [SerializeField] private GameStateManager gameStateManager;
-    
-    [SerializeField] private DifficultyManager difficultyManager;
+
+    public EffectManager EffectManager { get; set; }
+    public GameStateManager GameStateManager { get; set; }
+    public DifficultyManager DifficultyManager { get; set; }
+
+    public SoundManager SoundManager { get; set; }
     private AnimationCurve spawnDifficultyCurve;
     private AnimationCurve growthDifficultyCurve;
     public PlayerStats PlayerStats { get; set; }
@@ -16,8 +19,8 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
-        spawnDifficultyCurve = difficultyManager.SpawnDifficultyCurve;
-        growthDifficultyCurve = difficultyManager.GrowthDifficultyCurve;
+        spawnDifficultyCurve = DifficultyManager.SpawnDifficultyCurve;
+        growthDifficultyCurve = DifficultyManager.GrowthDifficultyCurve;
     }
 
     public void StartSpawn()
@@ -29,7 +32,7 @@ public class EnemySpawner : MonoBehaviour
     {
         while (true)
         {
-            if (!gameStateManager.IsPlayerAlive)
+            if (!GameStateManager.IsPlayerAlive)
             {
                 break;
             }
@@ -44,12 +47,14 @@ public class EnemySpawner : MonoBehaviour
             enemy.SecondsToGrow = growthDifficultyCurve.Evaluate(PlayerStats.PointsAmount);
             enemy.OversizeEvent += () =>
             {
-                gameStateManager.IsPlayerAlive = false;
+                GameStateManager.IsPlayerAlive = false;
+                EffectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
                 Destroy(enemy.gameObject);
+                SoundManager.PlayDeathSound();
             };
             enemy.GameEndEvent += () =>
             {
-                if (!gameStateManager.IsPlayerAlive)
+                if (!GameStateManager.IsPlayerAlive)
                 {
                     Destroy(enemy.gameObject);
                 }

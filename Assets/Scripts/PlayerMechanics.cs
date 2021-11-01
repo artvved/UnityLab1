@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class PlayerMechanics : MonoBehaviour
 {
-    private int timeGameSeconds=10;
+    private int timeGameSeconds = 10;
     private PlayerStats playerStats;
 
     public PlayerStats PlayerStats
@@ -24,7 +24,10 @@ public class PlayerMechanics : MonoBehaviour
 
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private Timer timer;
+    [SerializeField] private EffectManager effectManager;
+    [SerializeField] private DifficultyManager difficultyManager;
 
+    //UI
     [SerializeField] private GameScreen gameScreen;
     [SerializeField] private StartScreen startScreen;
 
@@ -34,6 +37,10 @@ public class PlayerMechanics : MonoBehaviour
         playerStats = new PlayerStats();
         mainCamera = Camera.main;
         enemySpawner.PlayerStats = playerStats;
+        enemySpawner.DifficultyManager = difficultyManager;
+        enemySpawner.EffectManager = effectManager;
+        enemySpawner.GameStateManager = gameStateManager;
+        enemySpawner.SoundManager = soundManager;
 
         timer.TimerEvent += () => { gameScreen.SetTime(timer.CurrentSeconds); };
 
@@ -50,7 +57,7 @@ public class PlayerMechanics : MonoBehaviour
             gameScreen.gameObject.SetActive(false);
             startScreen.gameObject.SetActive(true);
         };
-        
+
 
         startScreen.StartCasualGameEvent += () =>
         {
@@ -64,13 +71,9 @@ public class PlayerMechanics : MonoBehaviour
             timer.Seconds = timeGameSeconds;
             timer.StartTimer();
         };
-        startScreen.QuitGameEvent += () =>
-        {
-            Application.Quit();
-        };
+        startScreen.QuitGameEvent += () => { Application.Quit(); };
     }
 
-    
 
     private void StartGame()
     {
@@ -85,12 +88,19 @@ public class PlayerMechanics : MonoBehaviour
         if (gameStateManager.IsPlayerAlive)
         {
             RaycastHit2D hit = Physics2D.Raycast(mainCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
             if (hit.collider != null)
             {
-                PlayerStats.PointsAmount += 5;
-                soundManager.Play();
-                Destroy(hit.collider.gameObject);
+                var enemy = hit.collider.gameObject.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    PlayerStats.PointsAmount += 5;
+                    soundManager.Play();
+                    effectManager.PlayEnemyClickEffect(hit.transform.position);
+                    enemy.GetComponent<SelfDestroing>().enabled = true;
+                    enemy.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+                    enemy.GetComponent<PolygonCollider2D>().enabled = false;
+                    Destroy(enemy);
+                }
             }
             else
             {
@@ -101,7 +111,4 @@ public class PlayerMechanics : MonoBehaviour
             }
         }
     }
-
-
-   
 }

@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 8101549462376966514}
   - component: {fileID: 8101549462376966515}
   - component: {fileID: 5601001714948390627}
+  - component: {fileID: -4714884257575662286}
+  - component: {fileID: -8018215744515904195}
   m_Layer: 0
   m_Name: ValakasEnemy
   m_TagString: Untagged
@@ -207,5 +209,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 811001cbd79c8be4bba24d54cedb68e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!50 &-4714884257575662286
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8101549462376966525}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &-8018215744515904195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8101549462376966525}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3db625ac7b515814c8690d922f13b08a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -1407,6 +1407,7 @@ GameObject:
   - component: {fileID: 1350179880}
   - component: {fileID: 1350179879}
   - component: {fileID: 1350179877}
+  - component: {fileID: 1350179883}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -1457,6 +1458,8 @@ MonoBehaviour:
   inputManager: {fileID: 1350179879}
   enemySpawner: {fileID: 1350179881}
   timer: {fileID: 1350179882}
+  effectManager: {fileID: 1350179883}
+  difficultyManager: {fileID: 1350179880}
   gameScreen: {fileID: 2116787099}
   startScreen: {fileID: 765983059}
 --- !u!114 &1350179879
@@ -1562,8 +1565,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5601001714948390627, guid: 6b7b688ddb2d4264ba2c7decdd6f4846, type: 3}
-  gameStateManager: {fileID: 1350179877}
-  difficultyManager: {fileID: 1350179880}
 --- !u!114 &1350179882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1577,6 +1578,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameStateManager: {fileID: 1350179877}
+--- !u!114 &1350179883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350179875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28c4374ebdce7354790c7c5a4f320058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyClickEffectPrefab: {fileID: 7566022550528325998, guid: cc3e96ca469c4184e9fd098c2957900c, type: 3}
+  enemyOversizeEffectPrefab: {fileID: 1063214975598628776, guid: 7fa500e9d6adabd4cbc95210984e0023, type: 3}
 --- !u!1 &1561510382
 GameObject:
   m_ObjectHideFlags: 0
@@ -2032,6 +2047,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9da32138dc1bb0240958172d1a84bda9, type: 3}
   - {fileID: 8300000, guid: 484e94466cd0608448fecfb202889967, type: 3}
   - {fileID: 8300000, guid: e5e1e3c3eb07ff047ad9c8bc96b8a695, type: 3}
+  deathSoundClip: {fileID: 8300000, guid: 7a1073fc348e78a4fb431a4f269064e3, type: 3}
   audioSource: {fileID: 1967052236}
 --- !u!82 &1967052236
 AudioSource:
@@ -2317,6 +2333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointsText: {fileID: 1138584024}
   timeText: {fileID: 283828390}
+  endGameText: {fileID: 0}
 --- !u!1 &2130423166
 GameObject:
   m_ObjectHideFlags: 0
