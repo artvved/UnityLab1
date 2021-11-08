@@ -1,38 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private Enemy enemyPrefab;
 
-    public EffectManager EffectManager { get; set; }
-    public GameStateManager GameStateManager { get; set; }
-    public DifficultyManager DifficultyManager { get; set; }
+    private EffectManager effectManager;
+    private GameStateManager gameStateManager;
+    private DifficultyManager difficultyManager;
+    private SoundManager soundManager;
 
-    public SoundManager SoundManager { get; set; }
     private AnimationCurve spawnDifficultyCurve;
     private AnimationCurve growthDifficultyCurve;
-    public PlayerStats PlayerStats { get; set; }
 
+    private PlayerStats playerStats;
     private Vector2 gamefieldSize = new Vector2(2.5f, 3.2f);
+    private List<GameObject> enemies = new List<GameObject>();
+    private Coroutine spawnCouroutine;
 
     void Start()
     {
-        spawnDifficultyCurve = DifficultyManager.SpawnDifficultyCurve;
-        growthDifficultyCurve = DifficultyManager.GrowthDifficultyCurve;
+        spawnDifficultyCurve = difficultyManager.SpawnDifficultyCurve;
+        growthDifficultyCurve = difficultyManager.GrowthDifficultyCurve;
+    }
+
+    public void Construct(EffectManager effectManager, GameStateManager gameStateManager,
+        DifficultyManager difficultyManager, SoundManager soundManager, PlayerStats playerStats)
+    {
+        this.effectManager = effectManager;
+        this.gameStateManager = gameStateManager;
+        this.difficultyManager = difficultyManager;
+        this.soundManager = soundManager;
+        this.playerStats = playerStats;
     }
 
     public void StartSpawn()
     {
-        StartCoroutine(SpawnEnemy());
+        spawnCouroutine=StartCoroutine(SpawnEnemy());
+    }
+
+    public void StopSpawn()
+    {
+        StopCoroutine(spawnCouroutine);
+    }
+
+    public void StopAndClear()
+    {
+        ClearEnemies();
+        StopSpawn();
     }
 
     private IEnumerator SpawnEnemy()
     {
         while (true)
         {
-            if (!GameStateManager.IsPlayerAlive)
+            if (!gameStateManager.IsPlayerAlive)
             {
                 break;
             }
@@ -44,27 +68,47 @@ public class EnemySpawner : MonoBehaviour
 
 
             var enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
-            enemy.SecondsToGrow = growthDifficultyCurve.Evaluate(PlayerStats.PointsAmount);
+            enemy.SecondsToGrow = growthDifficultyCurve.Evaluate(playerStats.PointsAmount);
             enemy.OversizeEvent += () =>
             {
-                GameStateManager.IsPlayerAlive = false;
-                EffectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
-                Destroy(enemy.gameObject);
-                SoundManager.PlayDeathSound();
+                gameStateManager.IsPlayerAlive = false;
+                effectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
+
+                soundManager.PlayDeathSound();
+                StopCoroutine(SpawnEnemy());
+                ClearEnemies();
             };
-            enemy.GameEndEvent += () =>
-            {
-                if (!GameStateManager.IsPlayerAlive)
-                {
-                    Destroy(enemy.gameObject);
-                }
-            };
+            DeleteNullsFromEnemies();
+            enemies.Add(enemy.gameObject);
 
 
-            float timeToWait = spawnDifficultyCurve.Evaluate(PlayerStats.PointsAmount);
-            
+            float timeToWait = spawnDifficultyCurve.Evaluate(playerStats.PointsAmount);
+
             yield return new WaitForSeconds(timeToWait);
         }
+
         yield return null;
+    }
+
+    private void ClearEnemies()
+    {
+        foreach (var enemy in enemies)
+        {
+            Destroy(enemy);
+        }
+
+        enemies = new List<GameObject>();
+    }
+
+    private void DeleteNullsFromEnemies()
+    {
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] == null)
+            {
+                enemies.RemoveAt(i);
+                i--;
+            }
+        }
     }
 }

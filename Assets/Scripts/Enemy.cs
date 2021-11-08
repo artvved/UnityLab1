@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] private Animation animation;
     private float size = 0f;
     private float startSize;
 
@@ -17,12 +18,10 @@ public class Enemy : MonoBehaviour
         set => secondsToGrow = value;
     }
 
-    public event Action GameEndEvent;
+
     public event Action OversizeEvent;
-    public void OnGameEnd()
-    {
-        GameEndEvent?.Invoke();
-    }
+
+
     public void OnOversize()
     {
         OversizeEvent?.Invoke();
@@ -35,8 +34,7 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        OnGameEnd();
-        if (size >1)
+        if (size > 1)
         {
             OnOversize();
             return;
@@ -50,7 +48,16 @@ public class Enemy : MonoBehaviour
         transform.localScale = new Vector3(lScale.x + scaleIncr,
             lScale.y + scaleIncr,
             lScale.z);
+    }
 
-        
+
+    public void PlayDeathAnimationAndDie()
+    {
+        animation.Play();
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
     }
 }

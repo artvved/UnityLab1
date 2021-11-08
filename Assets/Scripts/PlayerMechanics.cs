@@ -36,11 +36,7 @@ public class PlayerMechanics : MonoBehaviour
     {
         playerStats = new PlayerStats();
         mainCamera = Camera.main;
-        enemySpawner.PlayerStats = playerStats;
-        enemySpawner.DifficultyManager = difficultyManager;
-        enemySpawner.EffectManager = effectManager;
-        enemySpawner.GameStateManager = gameStateManager;
-        enemySpawner.SoundManager = soundManager;
+        enemySpawner.Construct(effectManager,gameStateManager,difficultyManager,soundManager,playerStats);
 
         timer.TimerEvent += () => { gameScreen.SetTime(timer.CurrentSeconds); };
 
@@ -52,6 +48,7 @@ public class PlayerMechanics : MonoBehaviour
         gameScreen.PointsChangeEvent += () => { gameScreen.SetPoints(playerStats.PointsAmount); };
         gameScreen.BackToMenuEvent += () =>
         {
+            enemySpawner.StopAndClear();
             gameStateManager.IsPlayerAlive = false;
             playerStats.PointsAmount = 0;
             gameScreen.gameObject.SetActive(false);
@@ -96,10 +93,8 @@ public class PlayerMechanics : MonoBehaviour
                     PlayerStats.PointsAmount += 5;
                     soundManager.Play();
                     effectManager.PlayEnemyClickEffect(hit.transform.position);
-                    enemy.GetComponent<SelfDestroing>().enabled = true;
-                    enemy.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-                    enemy.GetComponent<PolygonCollider2D>().enabled = false;
-                    Destroy(enemy);
+                    enemy.PlayDeathAnimationAndDie();
+                    
                 }
             }
             else
