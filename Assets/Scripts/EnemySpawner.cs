@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -17,8 +19,10 @@ public class EnemySpawner : MonoBehaviour
 
     private PlayerStats playerStats;
     private Vector2 gamefieldSize = new Vector2(2.5f, 3.2f);
-    private List<GameObject> enemies = new List<GameObject>();
+    private List<GameObject> enemiesGO = new List<GameObject>();
     private Coroutine spawnCouroutine;
+    private List<EnemyColour> colors = new List<EnemyColour>() {EnemyColour.RED, EnemyColour.GREEN, EnemyColour.BLUE};
+    public EnemyColour CurrentColor;
 
     void Start()
     {
@@ -36,9 +40,21 @@ public class EnemySpawner : MonoBehaviour
         this.playerStats = playerStats;
     }
 
+    public event Action SpawnIterationEvent;
+
+    public void OnSpawnIteration()
+    {
+        SpawnIterationEvent?.Invoke();
+    }
+
     public void StartSpawn()
     {
-        spawnCouroutine=StartCoroutine(SpawnEnemy());
+        spawnCouroutine = StartCoroutine(SpawnEnemy());
+    }
+
+    public void StartColourSpawn()
+    {
+        spawnCouroutine = StartCoroutine(SpawnColourEnemy());
     }
 
     public void StopSpawn()
@@ -61,54 +77,103 @@ public class EnemySpawner : MonoBehaviour
                 break;
             }
 
-            Vector3 pos = new Vector3(
-                Random.Range(((-1) * gamefieldSize.x), (gamefieldSize.x)),
-                Random.Range(((-1) * gamefieldSize.y), (gamefieldSize.y)),
-                0);
-
-
-            var enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
-            enemy.SecondsToGrow = growthDifficultyCurve.Evaluate(playerStats.PointsAmount);
-            enemy.OversizeEvent += () =>
-            {
-                gameStateManager.IsPlayerAlive = false;
-                effectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
-
-                soundManager.PlayDeathSound();
-                StopCoroutine(SpawnEnemy());
-                ClearEnemies();
-            };
+            Vector3 pos = GetRandomPosition();
+            var enemy = ConstructEnemy(pos, EnemyColour.DEFAULT);
             DeleteNullsFromEnemies();
-            enemies.Add(enemy.gameObject);
+            enemiesGO.Add(enemy.gameObject);
 
-
+            OnSpawnIteration();
             float timeToWait = spawnDifficultyCurve.Evaluate(playerStats.PointsAmount);
-
             yield return new WaitForSeconds(timeToWait);
         }
 
         yield return null;
     }
 
+    private IEnumerator SpawnColourEnemy()
+    {
+        while (true)
+        {
+            if (!gameStateManager.IsPlayerAlive)
+            {
+                break;
+            }
+
+            DeleteNullsFromEnemies();
+
+            if (enemiesGO.Count == 0)
+            {
+                CurrentColor = colors[Random.Range(0, colors.Count - 1)];
+
+                foreach (var color in colors)
+                {
+                    Vector3 pos = GetRandomPosition();
+                    var enemy = ConstructEnemy(pos, color);
+                    enemiesGO.Add(enemy.gameObject);
+                }
+            }
+
+            OnSpawnIteration();
+            float timeToWait = spawnDifficultyCurve.Evaluate(playerStats.PointsAmount);
+            yield return new WaitForSeconds(timeToWait);
+        }
+
+        yield return null;
+    }
+
+    private Enemy ConstructEnemy(Vector3 pos, EnemyColour enemyColour)
+    {
+        var enemy = Instantiate(enemyPrefab, pos, Quaternion.identity);
+        enemy.SecondsToGrow = growthDifficultyCurve.Evaluate(playerStats.PointsAmount);
+        enemy.SetEnemyColour(enemyColour);
+        enemy.OversizeEvent += () =>
+        {
+            gameStateManager.IsPlayerAlive = false;
+            effectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
+
+            soundManager.PlayDeathSound();
+            StopAndClear();
+        };
+        return enemy;
+    }
+
     private void ClearEnemies()
     {
-        foreach (var enemy in enemies)
+        foreach (var enemy in enemiesGO)
         {
             Destroy(enemy);
         }
 
-        enemies = new List<GameObject>();
+        enemiesGO = new List<GameObject>();
+    }
+
+    public void AnimatedClearEnemies()
+    {
+        foreach (var enemy in enemiesGO)
+        {
+            enemy.GetComponent<Enemy>().PlayDeathAnimationAndDie();
+        }
+
+        enemiesGO = new List<GameObject>();
     }
 
     private void DeleteNullsFromEnemies()
     {
-        for (int i = 0; i < enemies.Count; i++)
+        for (int i = 0; i < enemiesGO.Count; i++)
         {
-            if (enemies[i] == null)
+            if (enemiesGO[i] == null)
             {
-                enemies.RemoveAt(i);
+                enemiesGO.RemoveAt(i);
                 i--;
             }
         }
+    }
+
+    private Vector3 GetRandomPosition()
+    {
+        return new Vector3(
+            Random.Range(((-1) * gamefieldSize.x), (gamefieldSize.x)),
+            Random.Range(((-1) * gamefieldSize.y), (gamefieldSize.y)),
+            0);
     }
 }

@@ -8,9 +8,8 @@ public class StartScreen : MonoBehaviour
 {
 
     public event Action StartCasualGameEvent;
-
-
     public event Action StartLimitedTimeGameEvent;
+    public event Action StartColourGameEvent;
     public event Action QuitGameEvent;
 
     public void OnStartCasualGame()
@@ -20,6 +19,10 @@ public class StartScreen : MonoBehaviour
     public void OnStartLimitedTimeGame()
     {
         StartLimitedTimeGameEvent?.Invoke();
+    }
+    public void OnStartColourGame()
+    {
+        StartColourGameEvent?.Invoke();
     }
 
     public void OnQuitGame()

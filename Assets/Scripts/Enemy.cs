@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private Animation animation;
+
+    private EnemyColourManager enemyColourManager = new EnemyColourManager();
     private float size = 0f;
     private float startSize;
 
@@ -17,6 +19,8 @@ public class Enemy : MonoBehaviour
         get => secondsToGrow;
         set => secondsToGrow = value;
     }
+
+    public EnemyColour EnemyColour { get; set; }
 
 
     public event Action OversizeEvent;
@@ -30,6 +34,13 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         startSize = transform.localScale.x;
+    }
+
+    public void SetEnemyColour(EnemyColour enemyColour)
+    {
+        EnemyColour = enemyColour;
+        var visualColour = enemyColourManager.GetVisualColour(enemyColour);
+        gameObject.GetComponentInChildren<SpriteRenderer>().color = visualColour;
     }
 
     void FixedUpdate()

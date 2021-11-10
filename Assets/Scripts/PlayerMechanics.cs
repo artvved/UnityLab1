@@ -36,7 +36,7 @@ public class PlayerMechanics : MonoBehaviour
     {
         playerStats = new PlayerStats();
         mainCamera = Camera.main;
-        enemySpawner.Construct(effectManager,gameStateManager,difficultyManager,soundManager,playerStats);
+        enemySpawner.Construct(effectManager, gameStateManager, difficultyManager, soundManager, playerStats);
 
         timer.TimerEvent += () => { gameScreen.SetTime(timer.CurrentSeconds); };
 
@@ -49,26 +49,42 @@ public class PlayerMechanics : MonoBehaviour
         gameScreen.BackToMenuEvent += () =>
         {
             enemySpawner.StopAndClear();
+            enemySpawner.CurrentColor = EnemyColour.DEFAULT;
             gameStateManager.IsPlayerAlive = false;
             playerStats.PointsAmount = 0;
             gameScreen.gameObject.SetActive(false);
             startScreen.gameObject.SetActive(true);
+        };
+        startScreen.StartColourGameEvent += () =>
+        {
+            StartGame();
+            gameScreen.ShowTime(false);
+            gameScreen.ShowGoalColour(true);
+            //gameScreen.SetGoalColour(EnemyColour.DEFAULT);
+            enemySpawner.StartColourSpawn();
         };
 
 
         startScreen.StartCasualGameEvent += () =>
         {
             StartGame();
+            enemySpawner.StartSpawn();
             gameScreen.ShowTime(false);
         };
         startScreen.StartLimitedTimeGameEvent += () =>
         {
             StartGame();
+            enemySpawner.StartSpawn();
             gameScreen.ShowTime(true);
             timer.Seconds = timeGameSeconds;
             timer.StartTimer();
         };
         startScreen.QuitGameEvent += () => { Application.Quit(); };
+
+        enemySpawner.SpawnIterationEvent += () =>
+        {
+            gameScreen.SetGoalColour(enemySpawner.CurrentColor);
+        };
     }
 
 
@@ -77,7 +93,6 @@ public class PlayerMechanics : MonoBehaviour
         gameStateManager.IsPlayerAlive = true;
         gameScreen.gameObject.SetActive(true);
         startScreen.gameObject.SetActive(false);
-        enemySpawner.StartSpawn();
     }
 
     private void ClickLogic()
@@ -90,11 +105,28 @@ public class PlayerMechanics : MonoBehaviour
                 var enemy = hit.collider.gameObject.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    PlayerStats.PointsAmount += 5;
-                    soundManager.Play();
-                    effectManager.PlayEnemyClickEffect(hit.transform.position);
-                    enemy.PlayDeathAnimationAndDie();
-                    
+                    if (enemy.EnemyColour != EnemyColour.DEFAULT)
+                    {  //colour game
+                        if (enemy.EnemyColour == enemySpawner.CurrentColor)
+                        {
+                            SuccessHit(hit);
+                            enemySpawner.AnimatedClearEnemies();
+                        }
+                        else
+                        {
+                            gameStateManager.IsPlayerAlive = false;
+                            effectManager.PlayEnemyOversizeEffect(enemy.gameObject.transform.position);
+                            soundManager.PlayDeathSound();
+                            enemySpawner.StopAndClear();
+                        }
+
+
+                    }
+                    else
+                    {   //casual game
+                        SuccessHit(hit);
+                        enemy.PlayDeathAnimationAndDie();
+                    }
                 }
             }
             else
@@ -105,5 +137,12 @@ public class PlayerMechanics : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void SuccessHit(RaycastHit2D hit)
+    {
+        PlayerStats.PointsAmount += 5;
+        soundManager.Play();
+        effectManager.PlayEnemyClickEffect(hit.transform.position);
     }
 }

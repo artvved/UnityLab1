@@ -10,19 +10,19 @@ public class GameScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private TextMeshProUGUI timeText;
     [SerializeField] private TextMeshProUGUI endGameText;
+    [SerializeField] private GameObject colour;
+    [SerializeField] private Image colourImage;
 
+    private EnemyColourManager enemyColourManager = new EnemyColourManager();
+    
     public event Action PointsChangeEvent;
     public event Action BackToMenuEvent;
-    public event Action EndGameEvent;
     public void OnPointsChange()
     {
         PointsChangeEvent?.Invoke();
     }
 
-    public void OnEndGame()
-    {
-        EndGameEvent?.Invoke();
-    }
+    
 
     public void OnBackToMenu()
     {
@@ -44,7 +44,17 @@ public class GameScreen : MonoBehaviour
     {
         timeText.gameObject.SetActive(isActive);
     }
-    
+
+    public void ShowGoalColour(bool isActive)
+    {
+        colour.SetActive(isActive);
+    }
+    public void SetGoalColour(EnemyColour enemyColour)
+    {
+        var c = enemyColourManager.GetVisualColour(enemyColour);
+        colourImage.color = c;
+    }
+
     public void ShowEndGameText(bool isActive)
     {
         endGameText.gameObject.SetActive(isActive);
